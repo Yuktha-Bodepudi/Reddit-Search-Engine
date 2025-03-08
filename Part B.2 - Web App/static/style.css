@@ -6,6 +6,7 @@
 
 :root{
     --red-color: #DC3545;
+    --red-light-color: #da5764;
 }
 
 
@@ -84,16 +85,30 @@
 }
 
 /* Animations */
-.animate-slide-up{
+.animate-slide-up:hover{
     display: inline-block;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     transition: transform 0.2s ease;
 }
 
+/* Fix for Footer */
 .result{
     min-height: 80vh;
 }
 
 .result >h5{
+    color: var(--red-color);
+}
+
+.footer > *{
+    color: white !important;
+}
+
+footer > div > p > a{
+    color: var(--red-light-color);
+    text-decoration: none;
+}
+
+footer>div>p>a>strong:hover{
     color: var(--red-color);
 }

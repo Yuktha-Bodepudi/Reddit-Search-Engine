@@ -28,15 +28,16 @@
         <form method="POST">
             <!-- Flex container for radio buttons, Top K, and buttons -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-        
                 <!-- 1 Radio Buttons (Left) -->
                 <div class="d-flex flex-wrap flex-sm-nowrap align-items-center">
                     <div class="form-check form-check-inline me-3">
-                        <input type="radio" name="index_type" value="lucene" checked class="form-check-input" id="lucene">
+                        <input type="radio" name="index_type" value="lucene" class="form-check-input" id="lucene" {% if
+                            request.form.get('index_type', 'lucene' )=='lucene' %} checked {% endif %}>
                         <label class="form-check-label" for="lucene">PyLucene</label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input type="radio" name="index_type" value="bert" class="form-check-input" id="bert">
+                        <input type="radio" name="index_type" value="bert" class="form-check-input" id="bert" {% if
+                            request.form.get('index_type')=='bert' %} checked {% endif %}>
                         <label class="form-check-label" for="bert">BERT</label>
                     </div>
                 </div>

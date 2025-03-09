@@ -3,8 +3,20 @@ import subprocess
 import json
 from flask import Flask, render_template, request
 import platform
+import numpy as np
+from utils import query_bert
 
 app = Flask(__name__)
+
+# Define base directories.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INDEX_FILE = os.path.join(BASE_DIR, "utils", "bert.index")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+# Load resources once at startup.
+faiss_index = query_bert.load_faiss_index(INDEX_FILE)
+posts_data = query_bert.load_posts_data(DATA_DIR)
+bert_model = query_bert.load_bert_model("sentence-transformers/all-distilroberta-v1")
 
 def search_lucene(query, top_k):
     # Determine OS for correct classpath separator
@@ -46,6 +58,7 @@ def search_lucene(query, top_k):
         return {"error": "Exception occurred", "details": str(e)}
 
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     results = {}
@@ -57,7 +70,7 @@ def index():
         if index_type == 'lucene':
             results = search_lucene(query, top_k)
         elif index_type == 'bert':
-            results = {"message": "BERT search is not implemented yet"}
+            results = query_bert.search_bert(query, top_k, faiss_index, posts_data, bert_model)
 
     return render_template('index.html', results=results)
 

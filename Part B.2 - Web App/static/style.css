@@ -19,10 +19,11 @@
 }
 
 .nav-title:hover{
-    color: white;
+    color: var(--red-color) !important;
     transform: translateY(-2px);
     transition: transform 0.2s ease;
 }
+
 
 /* Main */
 .app-title{
@@ -101,7 +102,7 @@
 }
 
 .footer > *{
-    color: white !important;
+    color: white;
 }
 
 footer > div > p > a{

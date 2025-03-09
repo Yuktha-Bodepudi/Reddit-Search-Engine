@@ -60,50 +60,58 @@
         
             <!-- Search Input Field -->
             <div class="my-3">
-                <input type="text" name="query" class="form-control" placeholder="Search reddit post" required>
+                <input type="text" name="query" class="form-control" placeholder="Search reddit post" required
+                    value="{{ request.form.get('query', '') }}">
             </div>
         </form>
 
         <!-- Results Section -->
         <div class="result">
-            {% if results and results.results %}
-            <h5 class="mt-4 ms-1">Results: <strong>{{ results.totalHits }} hits</strong></h5>
-            <div class="row mt-4">
-                {% for result in results.results %}
-                <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                        <!-- Card Header: Title always visible -->
-                        <div class="card-header py-2">
-                            <a href="{{ result.URL }}" target="_blank" class="title-url">
-                                <h5 class="card-title fixed-title mb-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    {{ result.Title }}
-                                </h5>
-                            </a>
+            {% if request.method == 'POST' %} <!-- Ensures this only runs after form submission -->
+                {% if results and results.results %}
+                <h5 class="mt-4 ms-1">Total Results: <strong>{{ results.totalHits }}</strong></h5>
+                <div class="row mt-4">
+                    {% for result in results.results %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <!-- Card Header: Title always visible -->
+                            <div class="card-header py-2">
+                                <a href="{{ result.URL }}" target="_blank" class="title-url">
+                                    <h5 class="card-title fixed-title mb-0"
+                                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ result.Title }}
+                                    </h5>
+                                </a>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <!-- Score always visible -->
+                                <li class="list-group-item">
+                                    <h6 class="card-subtitle text-body-secondary">Score: {{ result.score }}</h6>
+                                </li>
+                                <!-- Collapsible Body for the post Body -->
+                                <li class="list-group-item">
+                                    <div class="collapsible-body" id="body-{{ loop.index }}">
+                                        {{ result.Body }}
+                                    </div>
+                                    <!-- Toggle link (will be hidden if content fits) -->
+                                    <a href="javascript:void(0);" id="card-read-more"
+                                        class="btn btn-link p-0 mt-1 toggle-link animate-slide-up"
+                                        data-target="body-{{ loop.index }}" onclick="toggleBody('body-{{ loop.index }}', this)">Read
+                                        More</a>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="list-group list-group-flush">
-                            <!-- Score always visible -->
-                            <li class="list-group-item">
-                                <h6 class="card-subtitle text-body-secondary">Score: {{ result.score }}</h6>
-                            </li>
-                            <!-- Collapsible Body for the post Body -->
-                            <li class="list-group-item">
-                                <div class="collapsible-body" id="body-{{ loop.index }}">
-                                    {{ result.Body }}
-                                </div>
-                                <!-- Toggle link (will be hidden if content fits) -->
-                                <a href="javascript:void(0);" id="card-read-more" class="btn btn-link p-0 mt-1 toggle-link animate-slide-up"
-                                    data-target="body-{{ loop.index }}" onclick="toggleBody('body-{{ loop.index }}', this)">Read
-                                    More</a>
-                            </li>
-                        </ul>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-            {% elif results and results.error %}
-            <div class="alert alert-danger mt-4">
-                {{ results.error }}: {{ results.details }}
-            </div>
+                {% elif results and results.error %}
+                <div class="alert alert-danger mt-4">
+                    {{ results.error }}: {{ results.details }}
+                </div>
+                {% else %}
+                <!-- Display 0 Results only after a search has been made -->
+                <h5 class="mt-4 ms-1">Total Results: <strong>0</strong></h5>
+                {% endif %}
             {% endif %}
         </div>
     </div>

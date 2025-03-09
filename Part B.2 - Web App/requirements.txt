@@ -2,3 +2,7 @@ Flask
 faiss-cpu
 numpy
 sentence-transformers   
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+torchaudio

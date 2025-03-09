@@ -140,25 +140,52 @@ def convert_to_embedding(query, tokenizer, model):
 def search_bert(query, top_k, index, posts_data, tokenizer, model):
     """
     Converts the query to an embedding (using the same mean pooling),
-    normalizes it, performs a FAISS search, and returns the top_k results
-    with associated metadata.
-    
+    normalizes it, performs a FAISS search over a large set of neighbors,
+    filters results by a similarity threshold, and returns the top_k results
+    along with the total number of hits that exceed the threshold.
+
     Returns a dictionary in the format:
-      { "totalHits": <int>,
-        "results": [
+      {
+          "totalHits": <int>,
+          "results": [
              { "doc_id": <int>, "Title": <str>, "Body": <str>, "URL": <str>, "score": <float> },
-             ... ]
+             ...
+          ]
       }
     """
     top_k = int(top_k)
+    # For total hit count, search over all indexed vectors
+    top_n = index.ntotal
+    
+    # Compute query embedding.
     query_embedding = convert_to_embedding(query, tokenizer, model)
     query_embedding_np = query_embedding.cpu().numpy().reshape(1, -1)
     query_embedding_normalized = query_embedding_np / np.linalg.norm(query_embedding_np)
-    distances, indices = index.search(query_embedding_normalized, top_k)
+    
+    # Perform FAISS search for top_n results.
+    distances, indices = index.search(query_embedding_normalized, top_n)
+    
+    # Debug: Print the top similarity score.
+    max_sim = distances[0][0]
+    # Dynamic Threshold
+    cut_off = 0.5 if max_sim > 0.9 else 0.4 if max_sim > 0.8 else 0.3 if max_sim > 0.6 else 0.2 if max_sim > 0.4 else 0.1 if max_sim > 0.2 else 0.05
+
+    threshold = max_sim - cut_off
+    print(f"Max similarity: {distances[0][0]} and Threshold: {threshold}")
+    
+    # Filter results by threshold.
+    filtered_results = []
+    for i in range(len(distances[0])):
+        if distances[0][i] >= threshold:
+            filtered_results.append((indices[0][i], distances[0][i]))
+    
+    total_hits = len(filtered_results)
+    
+    # Only take the top_k filtered results for display.
+    filtered_results = filtered_results[:top_k]
+    
     results = []
-    for i in range(top_k):
-        doc_id = indices[0][i]
-        score = float(distances[0][i])
+    for doc_id, score in filtered_results:
         if doc_id < len(posts_data):
             post = posts_data[doc_id]
             title = post.get("title", "No Title")
@@ -175,9 +202,11 @@ def search_bert(query, top_k, index, posts_data, tokenizer, model):
             "Title": title,
             "Body": body,
             "URL": url,
-            "score": score
+            "score": float(score)
         })
-    return {"totalHits": len(results), "results": results}
+    
+    return {"totalHits": total_hits, "results": results}
+
 
 # --------------------------
 # Model Loading

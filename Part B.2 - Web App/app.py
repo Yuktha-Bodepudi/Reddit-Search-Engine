@@ -50,8 +50,6 @@ def search_lucene(query, top_k):
         query  # Query as a single argument
     ]
 
-    print("Executing command:", " ".join(command))  # Debugging output
-
     try:
         # Run the Java program and capture output
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

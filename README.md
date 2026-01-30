@@ -1,6 +1,6 @@
 ## Project Overview
 
-This repository aims to develop a search engine utilizing Reddit posts.
+This repository aims to develop a search engine utilizing Reddit posts for CS242 Course Project.
 
 ## Current Status
 
